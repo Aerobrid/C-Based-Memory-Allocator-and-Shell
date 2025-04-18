@@ -7,6 +7,7 @@
 
 /*
   Function Declarations for builtin shell commands:
+  Added since: "lsh_help() uses the array of builtins, and the arrays contain lsh_help()"
  */
 int lsh_cd(char **args);
 int lsh_help(char **args);
@@ -39,18 +40,24 @@ int lsh_num_builtins() {
 /*
   Builtin function implementations.
 */
+// for native cd command
 int lsh_cd(char **args)
 {
+    // to check if second argument exists (ex: cd file, cd directory/file)
     if (args[1] == NULL) {
         fprintf(stderr, "lsh: expected argument to \"cd\"\n");
     } else {
+        // if the directory user wants to change to is not valid, print out error message
         if (chdir(args[1]) != 0) {
         perror("lsh");
         }
     }
+    
+    // if the directory is valid, tell the shell to keep on running
     return 1;
 }
 
+// for native help command
 int lsh_help(char **args)
     {
     int i;
@@ -58,14 +65,19 @@ int lsh_help(char **args)
     printf("Type program names and arguments, and hit enter.\n");
     printf("The following are built in:\n");
 
+    // lists all of the built-in shell commands
     for (i = 0; i < lsh_num_builtins(); i++) {
         printf("  %s\n", builtin_str[i]);
     }
 
+    // asks user to refer to the external man command
     printf("Use the man command for information on other programs.\n");
+
+    // tell the shell to keep on going 
     return 1;
 }
 
+// if the native exit command is executed, exit the shell program
 int lsh_exit(char **args)
 {
     return 0;
@@ -192,8 +204,8 @@ char *lsh_read_line(void)
         if (feof(stdin)) {       // checks if EOF was reached 
             exit(EXIT_SUCCESS);  // We recieved an EOF (line has been successfully stored)
         } else  {
-            perror("readline"); // if there was an error
-            exit(EXIT_FAILURE); // exit program with failure status
+            perror("readline");  // if there was an error
+            exit(EXIT_FAILURE);  // exit program with failure status
         }
     }
   
